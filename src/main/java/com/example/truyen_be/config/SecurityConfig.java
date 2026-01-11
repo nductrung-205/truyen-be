@@ -16,7 +16,6 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Giữ lại Bean này để mã hóa mật khẩu
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -25,12 +24,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Cho phép CORS
-            .csrf(csrf -> csrf.disable()) // Disable CSRF cho API
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Cho phép đăng ký/đăng nhập
-                .requestMatchers("/api/stories/**").permitAll() // Cho phép xem truyện công khai
-                .anyRequest().authenticated() // Các cái khác mới cần đăng nhập
+                // Cho phép truy cập công khai
+                .requestMatchers("/api/auth/**").permitAll()           // Đăng ký/đăng nhập
+                .requestMatchers("/api/stories/**").permitAll()        // Xem truyện
+                .requestMatchers("/api/categories/**").permitAll()     // ✅ THÊM DÒNG NÀY
+                .requestMatchers("/api/chapters/**").permitAll()       // Đọc chương
+                .requestMatchers("/api/search/**").permitAll()         // Tìm kiếm
+                
+                // Các endpoint khác cần đăng nhập
+                .anyRequest().authenticated()
             );
         
         return http.build();
@@ -39,10 +44,19 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8081")); // Cho phép App React Native
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        
+        // ✅ Thêm nhiều origins cho dev
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:8081",
+            "http://localhost:19006",  // Expo web
+            "http://127.0.0.1:8081",
+            "http://192.168.*.*"        // Cho phép LAN
+        ));
+        
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Cache preflight request
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
