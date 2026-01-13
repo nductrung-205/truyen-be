@@ -12,5 +12,6 @@ public class StoryResponseDTO {
     private String authorName;
     private Set<String> categoryNames;
     private Long views;
+    private Double rating; // ← THÊM DÒNG NÀY
     private Integer chaptersCount;
 }

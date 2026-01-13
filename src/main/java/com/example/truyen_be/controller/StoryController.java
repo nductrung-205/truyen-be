@@ -29,9 +29,9 @@ public class StoryController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy) {
-        
+
         Page<Story> storyPage = storyService.getAllStories(page, size, sortBy);
-        
+
         List<StoryResponseDTO> dtos = storyPage.getContent()
                 .stream()
                 .map(this::convertToDTO)
@@ -86,6 +86,7 @@ public class StoryController {
     }
 
     // Convert Entity -> DTO (danh sách)
+    // ✅ FIX: Thêm rating vào DTO
     private StoryResponseDTO convertToDTO(Story story) {
         StoryResponseDTO dto = new StoryResponseDTO();
         dto.setId(story.getId());
@@ -97,6 +98,7 @@ public class StoryController {
                 ? story.getCategories().stream().map(c -> c.getName()).collect(Collectors.toSet())
                 : null);
         dto.setViews(story.getViews());
+        dto.setRating(story.getRating()); // ← THÊM DÒNG NÀY
         dto.setChaptersCount(story.getChaptersCount());
         return dto;
     }
@@ -113,35 +115,34 @@ public class StoryController {
         dto.setViews(story.getViews());
         dto.setRating(story.getRating());
         dto.setChaptersCount(story.getChaptersCount());
-        
+
         // Thông tin tác giả
         if (story.getAuthor() != null) {
             dto.setAuthorId(story.getAuthor().getId());
             dto.setAuthorName(story.getAuthor().getName());
             dto.setAuthorAvatarUrl(story.getAuthor().getAvatarUrl());
         }
-        
+
         // Thể loại
         dto.setCategoryNames(story.getCategories() != null
                 ? story.getCategories().stream().map(c -> c.getName()).collect(Collectors.toSet())
                 : null);
-        
+
         // Danh sách chapter
         dto.setChapters(story.getChapters() != null
                 ? story.getChapters().stream()
-                    .map(c -> new ChapterSummaryDTO(
-                        c.getId(),
-                        c.getChapterNumber(),
-                        c.getTitle(),
-                        c.getViews(),
-                        c.getUpdatedAt()
-                    ))
-                    .collect(Collectors.toList())
+                        .map(c -> new ChapterSummaryDTO(
+                                c.getId(),
+                                c.getChapterNumber(),
+                                c.getTitle(),
+                                c.getViews(),
+                                c.getUpdatedAt()))
+                        .collect(Collectors.toList())
                 : null);
-        
+
         dto.setCreatedAt(story.getCreatedAt());
         dto.setUpdatedAt(story.getUpdatedAt());
-        
+
         return dto;
     }
 }
