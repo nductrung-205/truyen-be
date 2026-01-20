@@ -24,40 +24,40 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                // Cho phép truy cập công khai
-                .requestMatchers("/api/auth/**").permitAll()           // Đăng ký/đăng nhập
-                .requestMatchers("/api/stories/**").permitAll()        // Xem truyện
-                .requestMatchers("/api/categories/**").permitAll()     // ✅ THÊM DÒNG NÀY
-                .requestMatchers("/api/chapters/**").permitAll()       // Đọc chương
-                .requestMatchers("/api/search/**").permitAll()         // Tìm kiếm
-                
-                // Các endpoint khác cần đăng nhập
-                .anyRequest().authenticated()
-            );
-        
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // Cho phép truy cập công khai
+                        .requestMatchers("/api/auth/**").permitAll() // Đăng ký/đăng nhập
+                        .requestMatchers("/api/stories/**").permitAll() // Xem truyện
+                        .requestMatchers("/api/categories/**").permitAll() // ✅ THÊM DÒNG NÀY
+                        .requestMatchers("/api/chapters/**").permitAll() // Đọc chương
+                        .requestMatchers("/api/search/**").permitAll() // Tìm kiếm
+
+                        // Các endpoint khác cần đăng nhập
+                        .anyRequest().authenticated());
+
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // ✅ Thêm nhiều origins cho dev
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:8081",
-            "http://localhost:19006",  // Expo web
-            "http://127.0.0.1:8081",
-            "http://192.168.*.*"        // Cho phép LAN
+
+        // ❌ Thay vì setAllowedOrigins, hãy dùng setAllowedOriginPatterns
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:8081",
+                "http://localhost:19006",
+                "http://127.0.0.1:8081",
+                "http://192.168.*:*", // ✅ Đúng cú pháp cho patterns
+                "*" // ✅ Hoặc cho phép tất cả để test nhanh
         ));
-        
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // Cache preflight request
-        
+        configuration.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

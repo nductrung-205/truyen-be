@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SendOtpRequest {
-    private String username; // Username để kiểm tra trong DB
-    private String email;    // Email để nhận OTP (không cần trùng DB)
+    private String email;   
 }

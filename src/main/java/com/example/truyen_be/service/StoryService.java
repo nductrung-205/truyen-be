@@ -8,8 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -49,14 +49,9 @@ public class StoryService {
         return storyRepository.findByCategories_Slug(categorySlug);
     }
 
-    // Tăng view count khi xem chi tiết truyện
-    @Transactional
-    public Story increaseStoryView(Long id) {
-        Story story = getStoryById(id);
-        if (story != null) {
-            story.setViews(story.getViews() + 1);
-            return storyRepository.save(story);
-        }
-        return null;
-    }
+    public Page<Story> getTopStoriesByPeriod(LocalDateTime fromDate, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views"));
+    return storyRepository.findByCreatedAtAfter(fromDate, pageable);
+}
+    
 }

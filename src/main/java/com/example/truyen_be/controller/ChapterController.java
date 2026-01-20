@@ -29,22 +29,19 @@ public class ChapterController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Lấy nội dung chapter cụ thể (tự động tăng view)
     @GetMapping("/{chapterNumber}")
     public ResponseEntity<ChapterDetailDTO> getChapterContent(
             @PathVariable Long storyId,
             @PathVariable Integer chapterNumber) {
-        
-        // Tăng view count
+
         Chapter chapter = chapterService.increaseChapterView(storyId, chapterNumber);
-        
+
         if (chapter == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // Lấy danh sách chapter để xác định prev/next
         List<Chapter> allChapters = chapterService.getChaptersByStory(storyId);
-        
+
         ChapterDetailDTO dto = convertToDetailDTO(chapter, allChapters);
         return ResponseEntity.ok(dto);
     }

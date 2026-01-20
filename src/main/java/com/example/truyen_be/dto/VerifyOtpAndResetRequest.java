@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VerifyOtpAndResetRequest {
-    private String username;
+    private String email;
     private String otp;
     private String newPassword;
 }
