@@ -31,4 +31,9 @@ public class User {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    private Integer exp = 0;
+    private Integer coins = 0;
+    private Integer checkInStreak = 0;
+    private LocalDateTime lastCheckIn;
 }

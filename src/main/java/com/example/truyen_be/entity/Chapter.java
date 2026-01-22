@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "chapters")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Chapter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,4 +44,7 @@ public class Chapter {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    private boolean isVip = false;
+    private Integer price = 10;
 }

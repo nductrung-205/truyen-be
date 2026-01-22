@@ -2,9 +2,9 @@ package com.example.truyen_be.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -17,25 +17,29 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        // Cho phép truy cập công khai
-                        .requestMatchers("/api/auth/**").permitAll() // Đăng ký/đăng nhập
-                        .requestMatchers("/api/stories/**").permitAll() // Xem truyện
-                        .requestMatchers("/api/categories/**").permitAll() // ✅ THÊM DÒNG NÀY
-                        .requestMatchers("/api/chapters/**").permitAll() // Đọc chương
-                        .requestMatchers("/api/search/**").permitAll() // Tìm kiếm
-
-                        // Các endpoint khác cần đăng nhập
-                        .anyRequest().authenticated());
+            // 1. Phải có cấu hình CORS ở đây
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
+            // 2. Tắt CSRF (BẮT BUỘC để gọi POST từ App/Axios)
+            .csrf(csrf -> csrf.disable())
+            
+            // 3. Cấu hình quyền truy cập
+            .authorizeHttpRequests(auth -> auth
+                // Cho phép tất cả các request OPTIONS (Preflight)
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
+                // Các đường dẫn công khai
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/stories/**").permitAll()
+                .requestMatchers("/api/users/**").permitAll() // Bao gồm cả check-in
+                .requestMatchers("/api/categories/**").permitAll()
+                .requestMatchers("/api/chapters/**").permitAll()
+                
+                // Mọi request khác cần login (nếu bạn chưa làm login thì tạm thời để permitAll hết)
+                .anyRequest().permitAll() 
+            );
 
         return http.build();
     }
@@ -43,16 +47,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // ❌ Thay vì setAllowedOrigins, hãy dùng setAllowedOriginPatterns
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:8081",
-                "http://localhost:19006",
-                "http://127.0.0.1:8081",
-                "http://192.168.*:*", // ✅ Đúng cú pháp cho patterns
-                "*" // ✅ Hoặc cho phép tất cả để test nhanh
-        ));
-
+        
+        // Cấu hình origin cụ thể
+        configuration.setAllowedOriginPatterns(Arrays.asList("*")); 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

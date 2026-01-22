@@ -66,6 +66,8 @@ public class AuthController {
                     user.getEmail(),
                     user.getAvatarUrl(),
                     user.getRole(),
+                    
+                    
                     "Đăng nhập thành công");
             return ResponseEntity.ok(response);
         } catch (Exception e) {

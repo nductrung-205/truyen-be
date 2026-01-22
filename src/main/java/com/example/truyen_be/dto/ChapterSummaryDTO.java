@@ -15,4 +15,6 @@ public class ChapterSummaryDTO {
     private String title;
     private Long views;
     private LocalDateTime updatedAt;
+    private boolean isVip; 
+    private Integer price;
 }

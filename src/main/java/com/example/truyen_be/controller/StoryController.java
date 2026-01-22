@@ -221,7 +221,11 @@ public class StoryController {
                                                                 c.getChapterNumber(),
                                                                 c.getTitle(),
                                                                 c.getViews(),
-                                                                c.getUpdatedAt()))
+                                                                c.getUpdatedAt(),
+                                                                c.isVip(),
+                                                                c.getPrice()
+                                                        ))
+                                                                
                                                 .collect(Collectors.toList())
                                 : null);
 

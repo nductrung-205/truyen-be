@@ -32,18 +32,43 @@ public class ChapterController {
     @GetMapping("/{chapterNumber}")
     public ResponseEntity<ChapterDetailDTO> getChapterContent(
             @PathVariable Long storyId,
-            @PathVariable Integer chapterNumber) {
+            @PathVariable Integer chapterNumber,
+            @RequestParam(required = false) Long userId) {
 
-        Chapter chapter = chapterService.increaseChapterView(storyId, chapterNumber);
+        // 1. Lấy thông tin chapter hiện tại
+        Chapter chapter = chapterService.getChapterByStoryAndNumber(storyId, chapterNumber);
 
         if (chapter == null) {
             return ResponseEntity.notFound().build();
         }
 
+        // 2. Lấy danh sách tất cả chapter của truyện này (để phục vụ việc tính toán
+        // Next/Prev trong DTO)
         List<Chapter> allChapters = chapterService.getChaptersByStory(storyId);
 
+        // 3. Kiểm tra xem đã mở khóa chưa
+        boolean unlocked = chapterService.isChapterUnlocked(userId, chapter.getId());
+
+        // 4. Convert sang DTO (Bây giờ đã đủ 2 tham số: chapter và allChapters)
         ChapterDetailDTO dto = convertToDetailDTO(chapter, allChapters);
+
+        // 5. Xử lý ẩn nội dung nếu chưa mở khóa
+        if (!unlocked) {
+            dto.setContent(null); // Giấu nội dung thực
+            dto.setLocked(true); // Đánh dấu là bị khóa
+        } else {
+            dto.setLocked(false);
+            // Chỉ tăng view khi người dùng thực sự đọc được nội dung
+            chapterService.increaseChapterView(storyId, chapterNumber);
+        }
+
         return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/{chapterId}/unlock")
+    public ResponseEntity<?> unlock(@PathVariable Long chapterId, @RequestParam Long userId) {
+        chapterService.unlockChapter(userId, chapterId);
+        return ResponseEntity.ok("Mở khóa thành công");
     }
 
     // Convert sang DTO (danh sách)

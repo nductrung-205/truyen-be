@@ -15,6 +15,9 @@ public class ChapterDetailDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
+    // Đổi setLocked thành locked
+    private boolean locked; 
+    
     private Integer previousChapter;
     private Integer nextChapter;
 }
