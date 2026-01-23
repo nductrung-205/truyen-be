@@ -12,7 +12,7 @@ public class VNPayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_TmnCode = "31VMKFFW";
     public static String vnp_HashSecret = "1JEDW7HF68VCIC9WPXFSVUDP5YKUSG6A";
-    public static String vnp_ReturnUrl = "http://10.18.12.125:8080/api/vnpay/callback";
+    public static String vnp_ReturnUrl = "http://192.168.1.8:8080/api/vnpay/callback";
 
     public static String hmacSHA512(final String key, final String data) {
         try {

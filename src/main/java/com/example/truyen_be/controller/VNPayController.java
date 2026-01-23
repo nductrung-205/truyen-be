@@ -41,7 +41,8 @@ public class VNPayController {
 
         if ("APP".equals(platform)) {
             // Tạo URL Deep Link cho Expo
-            String deepLink = "myapp://payment-status?result=" + result;
+            String expoIp = "192.168.1.8";
+            String deepLink = "exp://" + expoIp + ":8081/--/profile/deposit?result=" + result;
 
             response.setContentType("text/html;charset=UTF-8");
             String html = "<html>" +
@@ -61,7 +62,7 @@ public class VNPayController {
             response.getWriter().write(html);
         } else {
             // Cho Web thì vẫn giữ nguyên redirect cũ
-            response.sendRedirect("http://10.18.12.125:8081/profile/deposit?result=" + result);
+            response.sendRedirect("http://localhost:8081/profile/deposit?result=" + result);
         }
     }
 }
