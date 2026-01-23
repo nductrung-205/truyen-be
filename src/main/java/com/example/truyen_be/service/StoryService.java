@@ -33,7 +33,7 @@ public class StoryService {
     public List<Story> getHotStories() {
         return storyRepository.findByOrderByViewsDesc();
     }
-    
+
     // Lấy chi tiết truyện
     public Story getStoryById(Long id) {
         return storyRepository.findById(id).orElse(null);
@@ -50,8 +50,10 @@ public class StoryService {
     }
 
     public Page<Story> getTopStoriesByPeriod(LocalDateTime fromDate, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views"));
-    return storyRepository.findByCreatedAtAfter(fromDate, pageable);
-}
-    
+        // Thay vì dùng findByCreatedAtAfter, hãy dùng findAll và sắp xếp theo Views
+        // Nếu bạn muốn lấy top chung.
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views"));
+        return storyRepository.findAll(pageable);
+    }
+
 }
