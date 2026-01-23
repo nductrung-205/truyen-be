@@ -36,18 +36,32 @@ public class VNPayController {
     public void callback(@RequestParam Map<String, String> allParams, HttpServletResponse response) throws IOException {
         String vnp_TxnRef = allParams.get("vnp_TxnRef");
         boolean isSuccess = vnpayService.processCallback(allParams);
-
-        // Hết lỗi vì hàm này đã được định nghĩa trong VNPayService ở bước trên
         String platform = vnpayService.getPlatformByTxnRef(vnp_TxnRef);
-
         String result = isSuccess ? "success" : "failed";
 
         if ("APP".equals(platform)) {
-            // Trả về Deep Link cho Expo App
-            response.sendRedirect("myapp://payment-status?result=" + result);
+            // Tạo URL Deep Link cho Expo
+            String deepLink = "myapp://payment-status?result=" + result;
+
+            response.setContentType("text/html;charset=UTF-8");
+            String html = "<html>" +
+                    "<head><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>" +
+                    "<body style='text-align:center; padding-top: 50px; font-family: sans-serif;'>" +
+                    "   <h2>Thanh toán " + (isSuccess ? "thành công" : "thất bại") + "</h2>" +
+                    "   <p>Vui lòng nhấn nút bên dưới để quay lại ứng dụng.</p>" +
+                    "   <a href='" + deepLink
+                    + "' style='display:inline-block; background:#007bff; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;'>Quay lại ứng dụng</a>"
+                    +
+                    "   <script>" +
+                    "       // Tự động chuyển hướng sau 1 giây" +
+                    "       setTimeout(function() { window.location.href = '" + deepLink + "'; }, 1000);" +
+                    "   </script>" +
+                    "</body>" +
+                    "</html>";
+            response.getWriter().write(html);
         } else {
-            // Trả về URL cho trình duyệt Web
-            response.sendRedirect("http://192.168.1.14:8081/profile/deposit?result=" + result);
+            // Cho Web thì vẫn giữ nguyên redirect cũ
+            response.sendRedirect("http://10.18.12.125:8081/profile/deposit?result=" + result);
         }
     }
 }
